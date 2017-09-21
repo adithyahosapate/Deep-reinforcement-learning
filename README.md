@@ -2,4 +2,4 @@
 
 ## Credits 
 
-Credits go to Siraj Raval for the starter code
+Credits go to Siraj Raval for the starter code.
