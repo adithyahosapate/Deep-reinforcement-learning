@@ -21,26 +21,31 @@ input_dim1=80
 input_dim2=80
 D=input_dim1*input_dim2
 
-input_image=tf.placeholder("float32,",shape=[None,D,1],name="placeholder_x")
+input_vector=tf.placeholder("float32",shape=[None,D],name="placeholder_x")
+labels=tf.placeholder("float32",shape=[1,None,1],name="placeholder_y")
+advantages=tf.placeholder("float32",shape=[1,None,1],name="placeholder_adv")
+
+
 model={}
 
 w_1=tf.get_variable("w1", shape=[D, H],
 					initializer=tf.contrib.layers.xavier_initializer())
-w_2=tf.get_variable("w2", shape=[H, 1],
+w_2=tf.get_variable("w2", shape=[H,1],
 					initializer=tf.contrib.layers.xavier_initializer())
 
 
 
 
 
-def forward_pass(x):
-	l_1=tf.nn.relu(tf.matmul(x,w_1))#hidden_layer
-	l_2=tf.matmul(l1,w_2)
-	return (tf.nn.sigmoid(l_2),l_1)
 
+layer_1=tf.nn.relu(tf.matmul(input_vector,w_1))#hidden_layer
+layer_2=tf.nn.sigmoid(tf.matmul(layer_1,w_2))
 
+loss_function=tf.reduce_mean(tf.multiply(advantages,tf.multiply(tf.log(layer_2),labels)
+								+tf.multiply(tf.log(layer_2),1-labels)))
+	
 
-optimizer=tf.train.AdamOptimizer(0.0001).minimize()
+optimizer=tf.train.AdamOptimizer(0.0001).minimize(-loss_function)
 
 
 
@@ -75,43 +80,61 @@ env=gym.make("Pong-v0")
 observation=env.reset()
 prev_x=None
 reward_sum=0
+labels_list=[]
 xs,hs,dlogps,drs = [],[],[],[]
+advantages_list=[]
+x_list=[]
 episode_number=0
 
 sess.run(tf.global_variables_initializer())
 
+counter=0
 
 while True:
+
+	if episode_number%5==0:
+		render=True
+	else:
+		render=False
+
 	if render: env.render()
 	cur_x=prepro(observation)
 	x=cur_x-prev_x if prev_x is not None else np.zeros(D)
 	prev_x=cur_x
-	p,h=forward_pass(h)
-	action=2 if np.random.uniform < p else 3
 
-	xs.append(x)#observation
-	hs.append(h)
-	yu=1 if action==2 else 0
+	p=sess.run([layer_2],feed_dict={input_vector:np.array([x,x])})
+	x_list.append(np.array(x))
+	action=2 if np.random.uniform() < p[0][0] else 3
+
 	y = 1 if action == 2 else 0 # a "fake label"
-  	dlogps.append(y - p)
-
-  	observation, reward, done, info=env.step(action)
-  	reward_sum+=reward
-  	drs.append(reward)
-  	if done:
-  		episode_number+=1
-  		epx = np.vstack(xs)
-    	eph = np.vstack(hs)
-    	epdlogp = np.vstack(dlogps)
-    	epr = np.vstack(drs)
-    	xs,hs,dlogps,drs = [],[],[],[] # reset array memory
-    	discounted_epr = discount_rewards(epr)
-    	# standardize the rewards to be unit normal (helps control the gradient estimator variance)
-    	discounted_epr -= np.mean(discounted_epr)
-    	discounted_epr /= np.std(discounted_epr)
-
-    	epdlog*= discounted_epr
-    	grad=
+	labels_list.append([y])
+	counter=counter+1
+	observation, reward, done, info=env.step(action)
+	reward_sum+=reward
+	drs.append(reward)
+	if done:
+		if reward_sum<0:
+			advantage=-1
+		else:
+			advantage=1
+		
+		advantages_list.extend([[advantage]]*counter)
+		counter=0
+		observation = env.reset()
+		if episode_number%5==0:
+			_, loss, _ = sess.run([layer_2, loss_function, optimizer],
+                                                    {input_vector:np.array(x_list),
+                                                    advantages:np.array([advantages_list]),
+                                                    labels:np.array([labels_list])})	
+			advantages_list=[]
+			x_list=[]	
+			labels_list=[]
+			print(loss)
+		episode_number+=1
+		print("episode {}".format(episode_number))
+		
+		
+    	
 
 
 
