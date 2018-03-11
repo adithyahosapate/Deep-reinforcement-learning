@@ -2,6 +2,14 @@
 
 This repository contains the code for various deep reinforcement learning algorithms such as Policy Gradients and Deep Q-Learning.
 
+## Dependencies
+* Tensorflow 
+* numpy
+* pickle
+* Matplotlib 
+* gym
+
+
 ## Q-learning
 
 Training an agent using deep Q learning to navigate the given game environment. There are two game environments that the Q-learning agent can be trained on.
