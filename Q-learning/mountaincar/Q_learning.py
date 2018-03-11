@@ -40,7 +40,7 @@ def obs_to_state(env, obs):
     return a, b
 
 if __name__ == '__main__':
-    env_name = 'Acrobot-v1'
+    env_name = 'MountainCar-v0'
     env = gym.make(env_name)
     env.seed(0)
     np.random.seed(0)

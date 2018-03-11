@@ -19,6 +19,8 @@ In order to see the agent in action, run
 python3 Learner.py
 ```
 
+[[https://github.com/username/Deep-reinforcement-learning/blob/master/images/gridworld.png|alt=Gridworld]]
+
 
 * *MountainCar*
 
@@ -33,6 +35,7 @@ In order to see the agent in action, run
 python3 Q_learning.py
 ```
 
+[[https://github.com/username/Deep-reinforcement-learning/blob/master/images/mountaincar.png|alt=mountain_car]]
 
 
 ## Policy Gradients
@@ -53,6 +56,9 @@ For the tensorflow version(Training on GPU is recommended), run
 ```
 python3 policy_grad_tf.py
 ```
+
+[[https://github.com/username/Deep-reinforcement-learning/blob/master/images/Pong.png|alt=Pong]]
+
 
 ### Credits 
 
